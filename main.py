@@ -30,12 +30,22 @@ print(data.describe())
 
 # Information für eine bestimmte Spalte - hier die Information, ob beide Beteiligten sich wiedersehen wollen
 print(data['match'].describe())
+print(data['met'].describe())
+print(data['attractive'].describe())
+print(data['attractive_o'].describe())
+
+hobbys = ["sports", "tvsports", "exercise", "dining",
+          "museums", "art", "hiking", "gaming",
+          "clubbing", "reading", "tv", "theater",
+          "movies", "concerts", "music", "shopping", "yoga"]
+
+print(data[hobbys].mean().sort_values(ascending=False))
+
 
 # in scikit_learn steht X für die Attribute und Y für die Klassen. Wir teilen unsere Daten entsprechend auf:
 
 # [:,0:122] bedeutet "alle Zeilen für die Spalten 0-121 (alle 122 Attribute)
 X = data.iloc[:,0:122]
-X = X.drop(columns=["decision", "decision_o"])
 
 # ... oder wir wählen die gewünschte Spalte mit Namen aus 
 # (und wandeln sie in ein eindimensionales Array um, wie es der Lerner erwartet)
@@ -87,9 +97,25 @@ predict = clf.predict(X_test)
 print("F1: ",f1(predict, y_test))
 print("Precision: ",precision_score(y_test, predict))
 print("Recall: ",recall_score(y_test, predict))
+
 # Schauen wir uns den Baum an (wir geben die Spaltennamen aus den Trainingsdaten mit, 
 # damit die Features für uns leichter zu identifizieren sind): 
-
 tree.plot_tree(clf, feature_names=list(X_train.columns))
+
+X_train_neu = X_train.drop(columns=["decision", "decision_o"])
+X_test_neu = X_test.drop(columns=["decision", "decision_o"])
+
+clf_neu = tree.DecisionTreeClassifier(random_state=42)
+clf_neu = clf_neu.fit(X_train_neu, y_train)
+
+predict_neu = clf_neu.predict(X_test_neu)
+
+print("F1: ", f1(predict_neu, y_test))
+print("Precision: ", precision_score(y_test, predict_neu))
+print("Recall: ", recall_score(y_test, predict_neu))
+
+plt.figure(figsize=(20,20))
+tree.plot_tree(clf_neu,feature_names=list(X_train_neu.columns), fontsize=10, max_depth=3)
+plt.show()
 
 
